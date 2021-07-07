@@ -1,0 +1,1 @@
+web: gunicorn T2I.wsgi
