@@ -45,13 +45,11 @@ def index(request):
                 res['data'].append([float(q.surface.split()[0]), q.surface.split()[1]])
     if len(res['data']) > 0:
         print(res)
+        print(len(res))
         del doc
-        return res
-
     else:
         res['type'] = 'entity'
-    if ',' in seed:
-        seed = seed.replace(',', ' , ')
+
     nlp = stanza.Pipeline(str('en'), use_gpu=False,
                           processors='tokenize,pos,lemma')
     doc = nlp(translated_text)
@@ -64,18 +62,10 @@ def index(request):
         i = 0
         if w[1] == 'NUM':
             i = int(w[0])
-    for i, w in enumerate(res['data']):
-        if w[1] == 'NOUN':
-            if i < len(res['data']) - 1:
-                if res['data'][i + 1][1] == 'NOUN':
-                    w[0] = w[0] + ' ' + res['data'][i + 1][0]
-                    w[2] = w[2] + ' ' + res['data'][i + 1][2]
-                    del res['data'][i + 1]
-                    del res['data'][i]
-
     for w in res['data']:
         if w[1] == 'NOUN':
             translated_word = w[0]
+            print(translated_text)
 
             url = "https://bing-image-search1.p.rapidapi.com/images/search/"
 
@@ -87,8 +77,8 @@ def index(request):
             }
 
             response = requests.request("GET", url, headers=headers, params=querystring)
-            if response.json()['value']:
 
+            if response.json()['value']:
                 w[0] = response.json()['value'][0]['contentUrl']
                 print(w[0])
             else:
@@ -102,7 +92,6 @@ def index(request):
                 w[
                     0] = 'https://w7.pngwing.com/pngs/96/861/png-transparent-boy-cartoon-child-hat-boy-painted-hand' \
                          '-toddler-thumbnail.png '
-
     print(res)
     del doc
     return JsonResponse(res)
